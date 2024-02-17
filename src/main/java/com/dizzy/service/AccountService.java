@@ -18,6 +18,7 @@ public class AccountService {
 
 	@Autowired
 	private  JdbcTemplate template;
+	
 
 	public Accounts getAccountDetails(int id) {
 		Accounts accounts = accountsRepository.findByCustomerId(id);
