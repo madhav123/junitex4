@@ -1,53 +1,55 @@
 package com.dizzy.mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.dizzy.model.Accounts;
-import com.dizzy.service.AccountRecord;
+import com.dizzy.repository.AccountsRepository;
 import com.dizzy.service.AccountService;
+import com.dizzy.utility.StaticUtils;
 
 @ExtendWith(SpringExtension.class)
 public class AccountServiceWithStaticMockest {
-
+	
 	@InjectMocks  
 	AccountService accountService;	
-	
-	
+	@Mock
+	AccountsRepository accountsRepository;
 	@Mock
 	JdbcTemplate template;
     
-	@Captor
-	 ArgumentCaptor<String> query;
-	
-	@Captor
-	 ArgumentCaptor<AccountRecord> accountRecord;
-	
+    
 	@Test
-	public void testAllAccounts() {	
-		String sqlQuery="select a.account_number as accountAumber, a.account_type as accountType from accounts a";
-		List<Accounts> mockResponse = new ArrayList<>();
-		mockResponse.add(new Accounts());
-		mockResponse.add(new Accounts());	
-		List<Accounts> res =accountService.selectRecords();
-		verify(template).query(query.capture(), accountRecord.capture());
-		assertEquals(sqlQuery,query.getValue());
-		
-		
+	public void testTrue() {
+		Accounts mockResponse = new Accounts();
+		mockResponse.setBranchAddress("hyd");
+		 MockedStatic<StaticUtils> staticUtils = Mockito.mockStatic(StaticUtils.class);
+		 staticUtils.when(StaticUtils::checkAccess).thenReturn(true);
+
+	    Mockito.when(accountsRepository.findByCustomerId(Mockito.anyInt())).thenReturn(mockResponse);
+		Accounts account = accountService.getAccountDetails(0);
+		System.out.println("account" + account.getBranchAddress());
+		assertEquals("hyd", account.getBranchAddress());
 	}
 	
+	@Test
+	public void testFalsecase() {
+		Accounts mockResponse = new Accounts();
+		mockResponse.setBranchAddress("hyd");
+	    MockedStatic<StaticUtils> staticUtils = Mockito.mockStatic(StaticUtils.class);
+	    staticUtils.when(StaticUtils::checkAccess).thenReturn(false);
+	    Mockito.when(accountsRepository.findByCustomerId(Mockito.anyInt())).thenReturn(mockResponse);
+		Accounts account = accountService.getAccountDetails(0);
+		assertEquals(null, account);
+	}
+
 }
 

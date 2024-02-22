@@ -21,7 +21,7 @@ public class AccountService {
 	
 
 	public Accounts getAccountDetails(int id) {
-		Accounts accounts = accountsRepository.findByCustomerId(id);
+		Accounts accounts = accountsRepository.findByCustomerId(id);  
 		if (accounts != null && StaticUtils.checkAccess()) {
 			return accounts;
 		} else {
@@ -35,6 +35,7 @@ public class AccountService {
          String sql="select a.account_number as accountAumber, a.account_type as accountType from accounts a"; 
          System.out.println("select record form Rommapper");
          AccountRecord dd=new AccountRecord();
+         //
          List<Accounts> accounts=template.query(sql, dd);
          System.out.println(accounts.size()+"-------------");
          return accounts;
